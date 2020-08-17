@@ -24,12 +24,25 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
+/* IP whitelist middleware */
+
 /* Routes */
 app.post("/", upload.single("world"), (req, res) => {
+    if (config.get<string[]>("whitelistedIps").length > 0) {
+        console.log(req.ip)
+        const whitelistedIps = config.get<string[]>("whitelistedIps");
+        const whitelisted = whitelistedIps.some((whitelistedIp) => whitelistedIp == req.ip);
+        if (!whitelisted) {
+            res.send({ error: "IP not whitelisted" });
+            return;
+        }
+    }
+
     if (!req.file || !req.file.filename) {
         res.json({ error: "invalid request body" });
         return;
     }
+
     res.json({ file: req.file.filename });
     fileCache.push({ timestamp: new Date().getTime(), fileName: req.file.filename });
 });
