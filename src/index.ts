@@ -1,8 +1,8 @@
-import config from "config";
 import express from "express";
 import { promises as fs } from "fs";
 import multer from "multer";
 import { v4 as uuid } from "uuid";
+import config from "./modules/secret-config";
 import { getWorlds, hasWorld, deleteWorld } from "./world-util";
 
 /* Keep track of files as we need to delete them after x time */
@@ -24,16 +24,15 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-/* IP whitelist middleware */
-
 /* Routes */
 app.post("/", upload.single("world"), (req, res) => {
-    if (config.get<string[]>("whitelistedIps").length > 0) {
+    if ((config.get("whitelistedIps") as string[]).length > 0) {
         console.log(req.ip)
-        const whitelistedIps = config.get<string[]>("whitelistedIps");
+        const whitelistedIps = config.get("whitelistedIps") as string[];
         const whitelisted = whitelistedIps.some((whitelistedIp) => whitelistedIp == req.ip);
         if (!whitelisted) {
             res.send({ error: "IP not whitelisted" });
+            console.log("Blocked POST from non-whitelisted IP:", req.ip);
             return;
         }
     }
@@ -74,7 +73,7 @@ app.listen(config.get("port"), async () => {
     setInterval(async () => {
         const now = new Date().getTime();
         for (const cachedFile of fileCache) {
-            if (cachedFile.timestamp + config.get<number>("cacheTime") < now) {
+            if (cachedFile.timestamp + config.get("cacheTime") < now) {
                 await deleteWorld(cachedFile.fileName);
             }
         }
