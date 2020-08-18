@@ -2,8 +2,8 @@ name: CICD
 
 on:
   push:
-    branches:
-      - master
+    tags:
+      - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
 
 env:
   CONTAINER_NAME: world-downloader-server
@@ -19,16 +19,16 @@ jobs:
       - name: CI/1. Checkout repository
         uses: actions/checkout@v2
 
-      - name: CI/2. Retrieve version
-        id: package-version
-        uses: martinbeentjes/npm-get-version-action@master
+      - name: CI/2. Extract version from ref
+        id: extract-version
+        run: echo ::set-output name=version::${GITHUB_REF/refs\/tags\/v/}
 
       - name: CI/3. Add dynamic environment variables
         uses: allenevans/set-env@v1.1.0
         with:
           IMAGE_ID: ${{ secrets.REGISTRY_HOST }}/${{ env.IMAGE_NAME }}
-          IMAGE_VERSION: ${{ steps.package-version.outputs.current-version }}
-          IMAGE: ${{ secrets.REGISTRY_HOST }}/${{ env.IMAGE_NAME }}:${{ steps.package-version.outputs.current-version }}
+          IMAGE_VERSION: ${{ steps.extract-version.outputs.version }}
+          IMAGE: ${{ secrets.REGISTRY_HOST }}/${{ env.IMAGE_NAME }}:${{ steps.extract-version.outputs.version }}
 
       - name: CI/4. Docker build
         run: docker build --tag $IMAGE_NAME .
