@@ -27,7 +27,6 @@ const upload = multer({ storage });
 /* Routes */
 app.post("/", upload.single("world"), (req, res) => {
     if ((config.get("whitelistedIps") as string[]).length > 0) {
-        console.log(req.ip)
         const whitelistedIps = config.get("whitelistedIps") as string[];
         const whitelisted = whitelistedIps.some((whitelistedIp) => whitelistedIp == req.ip);
         if (!whitelisted) {
