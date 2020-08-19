@@ -128,3 +128,4 @@ dist
 # Build output
 /build
 /uploads
+/certs
