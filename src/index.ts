@@ -61,6 +61,14 @@ app.get("/:file", async (req, res) => {
 });
 
 /* Clean-up functions */
+const createUploadsDirectory = async () => {
+    await fs.mkdir(config.get("uploadDirectory"))
+        .catch(err => {
+            if (err.code !== 'EEXIST') {
+                console.log(`Could not create archive directory: ${config.get("uploadDirectory")}:\n ${err}`);
+            }
+        });
+}
 const cleanup = async () => {
     const files = await getWorlds();
     for (const file of files) {
@@ -80,22 +88,27 @@ const setCachePurger = () => {
 
 /* Start server */
 if (process.env.CERT_NAME) {
-    const key = fs.readFile(`certs/${process.env.CERT_NAME}.key`, "utf8");
-    const cert = fs.readFile(`certs/${process.env.CERT_NAME}.crt`, "utf8");
-    Promise.all([key, cert])
-        .then((results) => {
-            const credentials = { key: results[0], cert: results[1] };
+    const start = async () => {
+        await createUploadsDirectory();
+        const key = fs.readFile(`certs/${process.env.CERT_NAME}.key`, "utf8");
+        const cert = fs.readFile(`certs/${process.env.CERT_NAME}.crt`, "utf8");
+        Promise.all([key, cert])
+            .then((results) => {
+                const credentials = { key: results[0], cert: results[1] };
 
-            http.createServer(app).listen(80);
-            https.createServer(credentials, app).listen(443);
-            setCachePurger();
-        })
-        .then(() => cleanup())
-        .then(() => console.log("Ready for HTTP on port 80, ready for HTTPS on port 443"))
-        .catch((err) => console.error(err));
+                http.createServer(app).listen(80);
+                https.createServer(credentials, app).listen(443);
+                setCachePurger();
+            })
+            .then(() => cleanup())
+            .then(() => console.log("Ready for HTTP on port 80, ready for HTTPS on port 443"))
+            .catch((err) => console.error(err));
+    };
+    start();
 } else {
     app.listen(80, async () => {
         console.log("Ready on port 80");
+        await createUploadsDirectory();
         await cleanup();
         setCachePurger();
     });
