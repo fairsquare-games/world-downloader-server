@@ -56,7 +56,7 @@ jobs:
 
             # Start new instance
             echo $REGISTRY_PASSWORD | docker login $REGISTRY_HOST -u $REGISTRY_USERNAME --password-stdin
-            docker run -d --name $CONTAINER_NAME --network=${{ secrets.NGINX_NETWORK }} -v ${{ secrets.CERT_PATH }}:/usr/src/app/certs -e VIRTUAL_PROTO=https -e VIRTUAL_HOST=${{ secrets.VIRTUAL_HOST }} -e LETSENCRYPT_HOST=${{ secrets.VIRTUAL_HOST }} -e LETSENCRYPT_EMAIL=${{ secrets.LETSENCRYPT_EMAIL }} -e CERT_NAME=${{ secrets.VIRTUAL_HOST }} $IMAGE
+            docker run -d --name $CONTAINER_NAME --network=${{ secrets.NGINX_NETWORK }} -v ${{ secrets.CERT_PATH }}:/usr/src/app/certs -e VIRTUAL_PROTO=https -e VIRTUAL_HOST=${{ secrets.VIRTUAL_HOST }} -e VIRTUAL_PORT=443 -e LETSENCRYPT_HOST=${{ secrets.VIRTUAL_HOST }} -e LETSENCRYPT_EMAIL=${{ secrets.LETSENCRYPT_EMAIL }} -e CERT_NAME=${{ secrets.VIRTUAL_HOST }} $IMAGE
       - name: CD/2. Notify Discord
         uses: appleboy/discord-action@master
         with:
