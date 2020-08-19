@@ -5,7 +5,7 @@ import https from "https";
 import multer from "multer";
 import { v4 as uuid } from "uuid";
 import config from "./modules/secret-config";
-import { getWorlds, hasWorld, deleteWorld } from "./world-util";
+import { createWorldDirectory, getWorlds, hasWorld, deleteWorld } from "./world-util";
 
 /* Keep track of files as we need to delete them after x time */
 interface CachedFile {
@@ -61,14 +61,6 @@ app.get("/:file", async (req, res) => {
 });
 
 /* Clean-up functions */
-const createUploadsDirectory = async () => {
-    await fs.mkdir(config.get("uploadDirectory"))
-        .catch(err => {
-            if (err.code !== 'EEXIST') {
-                console.log(`Could not create archive directory: ${config.get("uploadDirectory")}:\n ${err}`);
-            }
-        });
-}
 const cleanup = async () => {
     const files = await getWorlds();
     for (const file of files) {
@@ -89,7 +81,7 @@ const setCachePurger = () => {
 /* Start server */
 if (process.env.CERT_NAME) {
     const start = async () => {
-        await createUploadsDirectory();
+        await createWorldDirectory();
         const key = fs.readFile(`certs/${process.env.CERT_NAME}.key`, "utf8");
         const cert = fs.readFile(`certs/${process.env.CERT_NAME}.crt`, "utf8");
         Promise.all([key, cert])
@@ -108,7 +100,7 @@ if (process.env.CERT_NAME) {
 } else {
     app.listen(80, async () => {
         console.log("Ready on port 80");
-        await createUploadsDirectory();
+        await createWorldDirectory();
         await cleanup();
         setCachePurger();
     });
