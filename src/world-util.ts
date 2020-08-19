@@ -1,8 +1,8 @@
 import config from "config";
 import { promises as fs } from "fs";
 
-export const getWorlds = async () => {
-    return await fs.readdir(config.get("uploadDirectory"));
+export const getWorlds = async (): Promise<string[]> => {
+    return await fs.readdir(config.get("uploadDirectory")).catch(() => []);
 };
 
 export const hasWorld = async (fileName: string) => {
