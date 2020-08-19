@@ -48,6 +48,7 @@ const Router = (cache: WorldCache) => {
         res.set("Content-Type", "application/zip");
         res.send(fileBuffer);
 
+        cache.removeWorld(req.params.file);
         await deleteWorld(req.params.file);
     });
 

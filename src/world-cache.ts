@@ -4,10 +4,14 @@ interface CachedFile {
 }
 
 class WorldCache {
-    readonly worlds: CachedFile[];
+    worlds: CachedFile[];
 
     constructor() {
         this.worlds = [];
+    }
+
+    removeWorld(fileName: string) {
+        this.worlds = this.worlds.filter((cachedFile) => cachedFile.fileName != fileName);
     }
 }
 

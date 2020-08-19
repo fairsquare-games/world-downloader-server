@@ -44,7 +44,7 @@ const stopServers = async () => {
 };
 const startHttp = async () => {
     createHttpTerminator({
-        server: http.createServer(app),
+        server: http.createServer(app).listen(80),
     });
     await createWorldDirectory();
     await cleanup();
