@@ -59,8 +59,8 @@ app.get("/:file", async (req, res) => {
 });
 
 /* Start server */
-app.listen(80, async () => {
-    console.log("Ready on port", 80);
+app.listen(config.get("port"), async () => {
+    console.log("Ready on port", config.get("port"));
 
     /* Clean up existing files */
     const files = await getWorlds();

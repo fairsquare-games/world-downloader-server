@@ -21,7 +21,5 @@ RUN npm run build
 RUN rm -rf src .gitignore .prettierrc nodemon.json tsconfig.json
 RUN npm prune --production
 
-EXPOSE 80
-
 ENV NODE_ENV=production
 CMD [ "npm", "start" ]
