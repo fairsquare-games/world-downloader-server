@@ -1,5 +1,7 @@
 import express from "express";
 import { promises as fs } from "fs";
+import http from "http";
+import https from "https";
 import multer from "multer";
 import { v4 as uuid } from "uuid";
 import config from "./modules/secret-config";
@@ -58,17 +60,14 @@ app.get("/:file", async (req, res) => {
     await deleteWorld(req.params.file);
 });
 
-/* Start server */
-app.listen(config.get("port"), async () => {
-    console.log("Ready on port", config.get("port"));
-
-    /* Clean up existing files */
+/* Clean-up functions */
+const cleanup = async () => {
     const files = await getWorlds();
     for (const file of files) {
         await deleteWorld(file);
     }
-
-    /* Set up auto-cleaner */
+};
+const setCachePurger = () => {
     setInterval(async () => {
         const now = new Date().getTime();
         for (const cachedFile of fileCache) {
@@ -77,4 +76,27 @@ app.listen(config.get("port"), async () => {
             }
         }
     }, 60 * 1000);
-});
+};
+
+/* Start server */
+if (process.env.CERT_NAME) {
+    const key = fs.readFile(`certs/${process.env.CERT_NAME}.key`, "utf8");
+    const cert = fs.readFile(`certs/${process.env.CERT_NAME}.crt`, "utf8");
+    Promise.all([key, cert])
+        .then((results) => {
+            const credentials = { key: results[0], cert: results[1] };
+
+            http.createServer(app).listen(80);
+            https.createServer(credentials, app).listen(443);
+            setCachePurger();
+        })
+        .then(() => cleanup())
+        .then(() => console.log("Ready for HTTP on port 80, ready for HTTPS on port 443"))
+        .catch((err) => console.error(err));
+} else {
+    app.listen(80, async () => {
+        console.log("Ready on port 80");
+        await cleanup();
+        setCachePurger();
+    });
+}
