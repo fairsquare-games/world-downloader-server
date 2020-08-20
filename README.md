@@ -20,9 +20,9 @@ Docker image as of now as FairSquare relies on its private registry for all of i
 However, you can build the image yourself using this repository. After having cloned this
 repository, you can build the image by simply executing the following Docker command:
 
-````
+```
 docker build --tag world-downloader-server .
-````
+```
 
 ## Passing in the configuration
 
@@ -46,9 +46,9 @@ or an entire object.
 If you do not care too much about routing all traffic via HTTPS, you can simply boot up the
 server using the following command:
 
-````
+```
 docker run --restart=always --name world-downloader-server -d -p 80:80 world-downloader-server
-````
+```
 
 #### jwilder/nginx-proxy
 
@@ -56,9 +56,9 @@ Do you find yourself using the [jwilder/nginx-proxy](https://hub.docker.com/r/jw
 container to route your web traffic on your server box? No problem! You can still use this
 image with the following command:
 
-````
+```
 docker run --restart=always --name world-downloader-server -d -e VIRTUAL_HOST=sub.domain.com world-downloader-server
-````
+```
 
 Do make sure that this container is in the same network as your nginx-proxy container. If it isn't,
 you can connect it to that network using `--network=yournginxproxynetwork`. Refer to 
@@ -87,9 +87,9 @@ container to route your web traffic on your server box, in addition to the
 [jrcs/nginx-proxy-companion](https://hub.docker.com/r/jrcs/letsencrypt-nginx-proxy-companion)?
 No problem! You can still use this image with the following command:
 
-````
+```
 docker run --restart=always --name world-downloader-server -d -e VIRTUAL_PROTO=https -e VIRTUAL_HOST=sub.domain.com -e VIRTUAL_PORT=443 -e LETSENCRYPT_HOST=sub.domain.com -e LETSENCRYPT_EMAIL=contact@domain.com -v /path/to/your/certs:/usr/src/app/certs -e CERT_NAME=sub.domain.com world-downloader-server
-````
+```
 
 Do make sure that this container is in the same network as your nginx-proxy container. If it isn't,
 you can connect it to that network using `--network=yournginxproxynetwork`. Refer to 
