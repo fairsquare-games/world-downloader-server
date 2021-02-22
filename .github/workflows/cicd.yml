@@ -24,7 +24,7 @@ jobs:
         run: echo ::set-output name=version::${GITHUB_REF/refs\/tags\/v/}
 
       - name: CI/3. Add dynamic environment variables
-        uses: allenevans/set-env@v1.1.0
+        uses: allenevans/set-env@v2.0.0
         with:
           IMAGE_ID: ${{ secrets.REGISTRY_HOST }}/${{ env.IMAGE_NAME }}
           IMAGE_VERSION: ${{ steps.extract-version.outputs.version }}
